@@ -36,4 +36,54 @@
  * @param {string} t
  * @return {string}
  */
-var minWindow = function (s, t) {};
+var minWindow = function (s, t) {
+  if (s.length < t.length) return '';
+
+  const isCovered = (mS, mT) => {
+    for (let i = 'a'.charCodeAt(); i <= 'z'.charCodeAt(); i++) {
+      if (mS[i] < mT[i]) return false;
+    }
+
+    for (let i = 'A'.charCodeAt(); i <= 'Z'.charCodeAt(); i++) {
+      if (mS[i] < mT[i]) return false;
+    }
+
+    return true;
+  };
+
+  let ansLeft = -1;
+  let ansRight = s.length;
+  let mapT = new Array(128).fill(0);
+  let mapS = new Array(128).fill(0);
+
+  let left = 0;
+  let right = 0;
+  let hasPush = false;
+
+  for (let i = 0; i < t.length; i++) {
+    mapT[t[i].charCodeAt()]++;
+  }
+
+  while (left <= right && right < s.length) {
+    if (!hasPush) {
+      mapS[s[right].charCodeAt()]++;
+      hasPush = true;
+    }
+
+    if (isCovered(mapS, mapT)) {
+      if (right - left < ansRight - ansLeft) {
+        ansRight = right;
+        ansLeft = left;
+      }
+      mapS[s[left].charCodeAt()]--;
+      left++;
+    } else {
+      right++;
+      hasPush = false;
+    }
+  }
+
+  if (ansLeft === -1) return '';
+
+  return s.slice(ansLeft, ansRight + 1);
+};
