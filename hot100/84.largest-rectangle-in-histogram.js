@@ -17,6 +17,8 @@
 // 1 <= heights.length <=105
 // 0 <= heights[i] <= 104
 
+// 单调栈：https://leetcode.cn/problems/largest-rectangle-in-histogram/solutions/142012/bao-li-jie-fa-zhan-by-liweiwei1419/
+
 /**
  * @param {number[]} heights
  * @return {number}
