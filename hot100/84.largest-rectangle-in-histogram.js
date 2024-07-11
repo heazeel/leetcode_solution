@@ -23,36 +23,38 @@
  */
 var largestRectangleArea = function (heights) {
   let max = 0;
-
-  let leftFirstMin = new Array(heights.length).fill(-1);
-  leftFirstMin[0] = 0;
-  for (let i = 1; i < heights.length; i++) {
-    if (heights[i - 1] <= heights[i]) {
-      leftFirstMin[i] = i - 1;
-    } else {
-      leftFirstMin[i] =
-        heights[i] >= heights[leftFirstMin[i - 1]] ? leftFirstMin[i - 1] : i;
-    }
-  }
-
-  let rightFirstMin = new Array(heights.length).fill(-1);
-  rightFirstMin[heights.length - 1] = heights.length - 1;
-  for (let i = heights.length - 2; i >= 0; i--) {
-    if (heights[i + 1] <= heights[i]) {
-      rightFirstMin[i] = i + 1;
-    } else {
-      rightFirstMin[i] =
-        heights[i] >= heights[rightFirstMin[i + 1]] ? rightFirstMin[i + 1] : i;
-    }
-  }
-
-  console.log(leftFirstMin, rightFirstMin);
+  let stack = [];
 
   for (let i = 0; i < heights.length; i++) {
-    max = Math.max(max, (rightFirstMin[i] - leftFirstMin[i] - 1) * heights[i]);
+    while (stack.length && heights[i] < heights[stack[stack.length - 1]]) {
+      const pollIndex = stack.pop();
+      const curH = heights[pollIndex];
+
+      while (stack.length && curH === heights[stack[stack.length - 1]]) {
+        stack.pop();
+      }
+
+      let curWidth = stack.length ? i - stack[stack.length - 1] - 1 : i;
+      max = Math.max(max, curH * curWidth);
+    }
+
+    stack.push(i);
+  }
+
+  while (stack.length) {
+    const pollIndex = stack.pop();
+    let area = 0;
+    if (stack.length) {
+      area =
+        (heights.length - stack[stack.length - 1] - 1) * heights[pollIndex];
+    } else {
+      area = heights[pollIndex] * heights.length;
+    }
+
+    max = Math.max(max, area);
   }
 
   return max;
 };
 
-console.log(largestRectangleArea([2, 4, 4, 4]));
+console.log(largestRectangleArea([1, 0, 1, 0, 1]));
