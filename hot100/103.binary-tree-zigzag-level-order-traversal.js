@@ -1,9 +1,11 @@
-// 102. 二叉树的层序遍历
-// 给你二叉树的根节点 root ，返回其节点值的 层序遍历 。 （即逐层地，从左到右访问所有节点）。
+// 103. 二叉树的锯齿形层序遍历
+
+// 给你二叉树的根节点 root ，返回其节点值的 锯齿形层序遍历 。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
 
 // 示例 1：
+// https://assets.leetcode.com/uploads/2021/02/19/tree1.jpg
 // 输入：root = [3,9,20,null,null,15,7]
-// 输出：[[3],[9,20],[15,7]]
+// 输出：[[3],[20,9],[15,7]]
 
 // 示例 2：
 // 输入：root = [1]
@@ -15,7 +17,7 @@
 
 // 提示：
 // 树中节点数目在范围 [0, 2000] 内
-// -1000 <= Node.val <= 1000
+// -100 <= Node.val <= 100
 
 /**
  * Definition for a binary tree node.
@@ -29,8 +31,9 @@
  * @param {TreeNode} root
  * @return {number[][]}
  */
-var levelOrder = function (root) {
+var zigzagLevelOrder = function (root) {
   let res = [];
+  let orderLeft = true;
   const queue = [root];
 
   while (queue.length) {
@@ -41,12 +44,18 @@ var levelOrder = function (root) {
       const node = queue.shift();
       if (!node) continue;
 
-      temp.push(node.val);
+      if (orderLeft) {
+        temp.push(node.val);
+      } else {
+        temp.unshift(node.val);
+      }
+
       node.left && queue.push(node.left);
       node.right && queue.push(node.right);
     }
 
     temp.length && res.push(temp);
+    orderLeft = !orderLeft;
   }
 
   return res;
@@ -87,4 +96,4 @@ function arrayToBinaryTree(arr) {
   return head;
 }
 
-console.log(levelOrder(arrayToBinaryTree([1, 2, 3, 4, 5])));
+console.log(zigzagLevelOrder(arrayToBinaryTree([1, 2, 3, 4, null, null, 5])));
