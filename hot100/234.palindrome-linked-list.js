@@ -30,19 +30,75 @@
  * @param {ListNode} head
  * @return {boolean}
  */
+// var isPalindrome = function (head) {
+//   let arr = [];
+//   while (head) {
+//     arr.push(head.val);
+//     head = head.next;
+//   }
+
+//   let flag = true;
+//   for (let i = 0; i < Math.floor(arr.length / 2); i++) {
+//     if (arr[i] !== arr[arr.length - 1 - i]) {
+//       return (flag = false);
+//     }
+//   }
+
+//   return flag;
+// };
+
 var isPalindrome = function (head) {
-  let arr = [];
-  while (head) {
-    arr.push(head.val);
-    head = head.next;
+  let pre = null;
+  let temp = head;
+
+  let last;
+  while (temp) {
+    temp.pre = pre;
+    pre = temp;
+
+    last = temp;
+    temp = temp.next;
   }
 
   let flag = true;
-  for (let i = 0; i < Math.floor(arr.length / 2); i++) {
-    if (arr[i] !== arr[arr.length - 1 - i]) {
-      return (flag = false);
+  while (last && head) {
+    if (last.val !== head.val) {
+      flag = false;
+      break;
     }
+
+    last = last.pre;
+    head = head.next;
   }
 
   return flag;
 };
+
+function ListNode(val, next) {
+  this.val = val === undefined ? 0 : val;
+  this.next = next === undefined ? null : next;
+}
+
+const struct = (numArr) => {
+  const res = new ListNode(0);
+  let temp = res;
+  for (let i = 0; i < numArr.length - 1; i++) {
+    temp.val = numArr[i];
+    temp.next = new ListNode(numArr[i + 1]);
+    temp = temp.next;
+  }
+
+  return res;
+};
+
+const output = (list) => {
+  let arr = [];
+  while (list) {
+    arr.push(list.val);
+    list = list.next;
+  }
+
+  return arr;
+};
+
+console.log(output(isPalindrome(struct([1, 2, 2, 1]))));
