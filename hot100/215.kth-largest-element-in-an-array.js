@@ -23,4 +23,48 @@
  * @param {number} k
  * @return {number}
  */
-var findKthLargest = function (nums, k) {};
+var findKthLargest = function (nums, k) {
+  const quickSearch = (nums, left, right) => {
+    const pivot = partition(nums, left, right);
+    let goat = nums.length - k;
+    if (goat === pivot) return nums[pivot];
+
+    if (goat < pivot) {
+      return quickSearch(nums, left, pivot - 1);
+    }
+
+    return quickSearch(nums, pivot + 1, right);
+  };
+
+  const midOfThree = (nums, left, right, mid) => {
+    let l = nums[left],
+      m = nums[mid],
+      r = nums[right];
+    // m 在 l 和 r 之间
+    if ((l <= m && m <= r) || (r <= m && m <= l)) return mid;
+    // l 在 m 和 r 之间
+    if ((m <= l && l <= r) || (r <= l && l <= m)) return left;
+    return right;
+  };
+
+  const partition = (nums, left, right) => {
+    let i = left;
+    let j = right;
+
+    const mid = midOfThree(nums, left, right, Math.floor((left + right) / 2));
+    [nums[left], nums[mid]] = [nums[mid], nums[left]];
+
+    while (i < j) {
+      while (i < j && nums[j] >= nums[left]) j--;
+      while (i < j && nums[i] <= nums[left]) i++;
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+    [nums[left], nums[i]] = [nums[i], nums[left]];
+
+    return i;
+  };
+
+  return quickSearch(nums, 0, nums.length - 1);
+};
+
+console.log(findKthLargest([3, 2, 1, 5, 6, 4], 2));
