@@ -29,10 +29,9 @@
  */
 var searchMatrix = function (matrix, target) {
   let m = 0;
-  let n = matrix.length - 1;
+  let n = matrix[0].length - 1;
 
   while (n >= 0 && m < matrix.length) {
-    console.log(m, n);
     if (matrix[m][n] === target) {
       return true;
     } else if (matrix[m][n] > target) {
