@@ -26,20 +26,18 @@ var canPartition = function (nums) {
   if (sum % 2 !== 0) return false;
 
   const taget = sum / 2;
-  let dp = Array(taget + 1).fill(Infinity);
-  dp[0] = 0;
+  let dp = Array(taget + 1).fill(false);
+  dp[0] = true;
 
-  for (let i = 1; i <= taget; i++) {
-    for (let j = 0; j < nums.length; j++) {
-      if (i - nums[j] >= 0) {
-        dp[i] = Math.min(dp[i - nums[j]] + 1, dp[i]);
+  for (let i = 0; i <= nums.length; i++) {
+    for (let j = taget; j >= 1; j--) {
+      if (j - nums[i] >= 0) {
+        dp[j] = dp[j] || dp[j - nums[i]];
       }
     }
   }
 
-  console.log(dp);
-
-  return dp[taget] !== Infinity;
+  return dp[taget];
 };
 
 console.log(canPartition([1, 2, 5]));
