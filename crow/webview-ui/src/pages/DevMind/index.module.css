@@ -1,0 +1,25 @@
+.process_wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.process_bar {
+  width: 80%;
+}
+
+.process_body {
+  margin-top: 10px;
+}
+
+.devmind_wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.step_warpper {
+  height: auto;
+  width: 100%;
+  padding-left: 12px;
+}

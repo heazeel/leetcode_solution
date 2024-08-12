@@ -1,0 +1,80 @@
+.chaoshi-quick-ops-con {
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  padding: 5px 0;
+}
+
+.chat-quick-op-more {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 5px;
+}
+
+.chat-quick-ops-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chat-quick-ops {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  flex: 1;
+}
+
+.chat-quick-op {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.sort-tag {
+  font-size: 14px;
+  user-select: none;
+  margin-right: 0;
+  cursor: move;
+}
+
+.check-tag {
+  border: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border);
+}
+
+.check-tag:hover {
+  color: var(--ant-tag-default-color) !important;
+}
+
+.click-tag {
+  font-size: 14px;
+  margin-right: 0;
+  min-width: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+}
+
+.click-tag:hover {
+  cursor: pointer;
+}
+
+.op-list-wrapper {
+  height: fit-content;
+  transition: height 0.3s ease;
+}
+
+.item-title {
+  font-size: 13px;
+  margin: 16px 0 8px 0;
+  opacity: 0.8;
+}
+
+.drag-handle {
+  touch-action: none;
+  cursor: move;
+  margin-right: 8px;
+  opacity: 0.6;
+}

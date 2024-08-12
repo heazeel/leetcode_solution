@@ -1,0 +1,22 @@
+.schema_item_wrapper {
+  background-color: var(--ant-color-bg-container-disabled);
+  border-radius: 8px;
+  padding: 4px;
+  margin-top: 8px;
+}
+
+.operation_wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.divider {
+  margin: 8px 0px;
+}
+
+.file_wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

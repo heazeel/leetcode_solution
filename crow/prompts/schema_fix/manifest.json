@@ -1,0 +1,15 @@
+{
+  "name": "/schemaFix",
+  "description": "模块Schema优化",
+  "key": "schemaFix",
+  "template": "./template.md",
+  "inputVariables": [
+    "codeStr"
+  ],
+  "defaultValues": [
+    {
+      "key": "codeStr",
+      "value": "TextEditor.getSelectedText"
+    }
+  ]
+}

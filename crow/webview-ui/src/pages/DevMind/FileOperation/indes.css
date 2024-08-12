@@ -1,0 +1,50 @@
+.devmind_file_wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.devmind_progress_wrapper {
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+}
+
+.devmind_collapse_wrapper .ant-collapse-header {
+  padding: 0 !important;
+  align-items: center !important;
+}
+
+.devmind_collapse_wrapper .ant-collapse-content-box {
+  padding-left: 28px !important;
+  padding-right: 64px !important;
+}
+
+.devmind_edit_wrapper .ant-collapse-content-box {
+  padding-right: 0px !important;
+}
+
+.devmind_file_button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 38px;
+  width: 100%;
+}
+
+.devmind_file_button_with_accept {
+  width: calc(100% - 48px);
+}
+
+.devmind_file_empty {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

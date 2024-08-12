@@ -1,0 +1,15 @@
+{
+  "name": "/unittest",
+  "description": "为选中代码生成单元测试",
+  "key": "unittest",
+  "template": "./template.md",
+  "inputVariables": [
+    "codeStr"
+  ],
+  "defaultValues": [
+    {
+      "key": "codeStr",
+      "value": "TextEditor.getSelectedText"
+    }
+  ]
+}

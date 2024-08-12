@@ -1,0 +1,36 @@
+.answer-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chat-ask-item-wrapper {
+  padding: 16px 10px 16px 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background-color: var(--crow-color-ask-bg);
+}
+
+.chat-ask-user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.chat-ask-img {
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.chat-ask-item-text {
+  width: 100%;
+  white-space: pre-wrap;
+  line-height: 1.3rem;
+  word-break: break-word;
+}

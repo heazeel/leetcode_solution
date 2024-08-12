@@ -1,0 +1,16 @@
+.closely-answer-wrapper {
+  margin-top: 10px;
+}
+
+.closely-loading-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.closely-loading-text {
+  margin-left: 3px;
+  font-size: 12px;
+  color: var(--ant-color-link);
+}

@@ -1,0 +1,28 @@
+.inline_chat {
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  height: 350px;
+  overflow: auto;
+  margin: 4px 28px 6px 14px;
+  border-radius: 6px;
+  padding: 6px;
+  padding-top: 2px;
+  background: var(--vscode-inlineChat-background);
+  border: 1px solid var(--vscode-inlineChat-border);
+  box-shadow: 0 -1px 6px var(--vscode-inlineChat-shadow);
+}
+
+.inline_chat_only_input {
+  box-shadow: 0 4px 8px var(--vscode-inlineChat-shadow);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border: none;
+  height: auto;
+}
+
+.inline_chat_content {
+  flex: 1;
+  overflow: auto;
+  margin-top: 8px;
+}

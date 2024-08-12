@@ -1,0 +1,40 @@
+.clear-wrapper {
+  padding: 4px 0;
+  border-top: 2px solid var(--crow-color-border);
+  border-bottom: 2px solid var(--crow-color-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--crow-color-text);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  font-size: 12px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000, transparent);
+}
+
+.clear-wrapper:hover .has-clear {
+  transform: translateY(-50%);
+  opacity: 0;
+}
+
+.clear-wrapper:hover .restore-clear {
+  transform: translateY(0%);
+  opacity: 1;
+}
+
+.has-clear {
+  transform: translateY(0);
+  position: relative;
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+
+.restore-clear {
+  color: var(--crow-color-primary);
+  transform: translateY(-50%);
+  position: absolute;
+  transition: all 0.2s ease;
+  opacity: 0;
+}

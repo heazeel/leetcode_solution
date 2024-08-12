@@ -1,0 +1,21 @@
+.step_warpper {
+  width: 100%;
+  overflow: hidden;
+  padding-left: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.expand_btn {
+  width: fit-content;
+  background-color: var(--ant-color-bg-container-disabled);
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 10px;
+  font-size: 11px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 10;
+  align-self: flex-end;
+}

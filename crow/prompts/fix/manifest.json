@@ -1,0 +1,15 @@
+{
+  "name": "/fix",
+  "description": "修复选中代码风格问题",
+  "key": "fix",
+  "template": "./template.md",
+  "inputVariables": [
+    "codeStr"
+  ],
+  "defaultValues": [
+    {
+      "key": "codeStr",
+      "value": "TextEditor.getSelectedText"
+    }
+  ]
+}

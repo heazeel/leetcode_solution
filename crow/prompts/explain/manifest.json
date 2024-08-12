@@ -1,0 +1,15 @@
+{
+  "name": "/explain",
+  "description": "代码解释",
+  "key": "explain",
+  "template": "./template.md",
+  "inputVariables": [
+    "codeStr"
+  ],
+  "defaultValues": [
+    {
+      "key": "codeStr",
+      "value": "TextEditor.getSelectedText"
+    }
+  ]
+}

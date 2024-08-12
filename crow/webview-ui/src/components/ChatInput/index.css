@@ -1,0 +1,117 @@
+.chat-footer {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 10px;
+  /* background-color: #23262b; */
+}
+
+.chat-footer-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.chat-footer-btn {
+  margin-right: 10px;
+  background-color: transparent;
+  /* border-color: rgb(40, 44, 52); */
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-footer-btns-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-footer-more-btn {
+  background-color: transparent;
+  border-color: rgb(40, 44, 52);
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-footer-btn:hover,
+.chat-footer-more-btn:hover {
+  border-color: #79c0ff;
+  color: #79c0ff;
+}
+
+.chat-wrapper {
+  position: relative;
+  box-sizing: border-box;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chat-area {
+  width: 100%;
+  margin-right: 10px;
+  border-radius: 4px;
+  font-family: inherit;
+  padding: 10px 63px 10px 14px;
+  resize: none;
+  -webkit-user-modify: read-write-plaintext-only !important;
+  background-color: var(--vscode-input-background) !important;
+  border-color: var(--vscode-input-background);
+}
+
+.chat-btn-area {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 33px;
+  height: 28px;
+  right: 10px;
+}
+
+.chat-btn,
+.chat-quick-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+}
+
+.chat-quick-btn {
+  right: auto;
+  left: 10px;
+  top: 7px;
+  position: absolute;
+  height: 28px;
+}
+
+.chat-text-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-btn:hover {
+  background-color: var(--vscode-disabledForeground);
+}
+
+.tbstart-dropdown-button > .ant-btn-compact-first-item {
+  padding: 0 3px !important;
+}
+
+.top-btns,
+.bottom-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: transparent;
+  border: none;
+}

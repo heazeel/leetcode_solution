@@ -1,0 +1,58 @@
+[
+  {
+    "name": "/doc",
+    "description": "为选中代码生成注释",
+    "key": "doc",
+    "template": "我想让你充当软件开发人员。请参照以下注释规范对提供的代码进行注释，注意不要输出对代码逻辑功能的解释内容：\n1. 使用与提交的代码语言类型相匹配的注释格式来生成注释，如Java使用Javadoc格式，JavaScript使用JSDoc格式等。\n2. 当提交的代码语言类型无法识别时，需要采用Javadoc格式来生成注释，不要尝试输出多种不同格式的注释。\n3. 如果输入的函数名内已经表达了显而易见的内容，例如“addNumbers”，则无需在注释中再重复。\n4. 需要对提供的代码的关键逻辑进行注释，不要试图自行添加额外的代码和内容。\n5. 请检查注释中是否存在拼写错误、错别字或语法错误，并进行修订。\n6. 在注释时请确保清晰明了，避免使用过于复杂、晦涩难懂的措辞，避免存在歧义或混淆。\n7. 请完成中文注释，使用Markdown格式对代码进行封装，需要声明代码的语言类型，对只有注释的内容使用```进行封装。\n\n以下是提供的代码：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/explain",
+    "description": "代码解释",
+    "key": "explain",
+    "template": "帮我解释一下这段代码的逻辑：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/fix",
+    "description": "修复选中代码风格问题",
+    "key": "fix",
+    "template": "从现在开始，你是一位优秀的软件工程师，你需要对我提供的代码进行优化，代码可能存在以下风格问题，你需要按照对应的优化方案对代码进进行优化：\n1. 缺乏一致性：代码中使用不一致的缩进、命名风格、代码注释等，使得代码难以阅读和维护。优化方案：统一的代码风格规范。\n2. 变量和函数命名不清晰：使用没有意义或者太过简单的变量和函数名，无法清晰地表达其用途。优化方案：使用有意义的命名，避免使用缩写或者单字母变量，使得代码更易读。\n3. 长方法和函数：过长的方法和函数增加了代码的复杂性，难以理解和测试。优化方案：将长方法和函数拆分成多个小的、单一职责的函数，提高代码的可读性和可维护性。\n4. 注释不足或者错误：缺乏注释或者注释与代码不一致，无法理解代码的用途和实现细节。优化方案：为代码添加清晰的注释，解释代码的意图和实现逻辑，方便他人阅读和维护代码，注释需要是中文。\n5. 不合理的代码布局：代码缺乏良好的排版和布局，使得代码难以理解和浏览。优化方案：使用适当的缩进、空行和代码块，使得代码结构清晰，易于阅读和维护。\n6. 过多的重复代码：代码中存在大量重复的代码段，增加了代码冗余，并且修改起来复杂。优化方案：提取重复的代码段为函数或者类，减少代码冗余，提高代码的可维护性。\n7. 没有错误处理机制：代码未考虑异常情况，没有适当的错误处理机制，导致程序容易崩溃或者出现不可预料的错误。优化方案：为代码添加适当的错误处理，捕获异常并进行相应的处理，增加代码的健壮性。\n8. 没有做空值判断：使用变量时未考虑变量值为null、undefined等情况，导致程序容易崩溃或者出现不可预料的错误，优化方案：为代码添加适当的空值判断和错误处理，捕获异常并进行相应的处理，增加代码的健壮性。\n\n请你按上面提供的优化方案，对下面这份代码进行优化，你优化后的代码不能有上面提出的问题：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/refactor",
+    "description": "重构选中代码",
+    "key": "refactor",
+    "template": "从现在开始，你是一位优秀的软件工程师，擅长对代码进行重构，\n\n代码重构是对现有代码进行修改和优化，以改善其结构、可读性、可维护性和性能等方面的技术。\n重构的目的是在不改变代码外部行为的前提下，通过优化代码结构来提高代码质量。\n总体而言，代码重构可以通过以下几个步骤进行：\n1. 理解代码：首先要深入理解要重构的代码，包括其功能、逻辑和结构等方面的特点。\n2. 设计重构计划：根据代码的特点和需求，制定具体的重构计划。可以根据上述列举的重构方式和技术，选择适合的重构方法。\n3. 提取函数（Extract Function）：将一段代码提取为一个独立的函数，以提高代码的可读性和可维护性。\n4. 内联函数（Inline Function）：将某个函数调用的地方替换为函数本体，以减少不必要的函数调用开销。\n5. 封装字段（Encapsulate Field）：将类中的字段封装起来，通过提供访问器函数来访问和修改字段的值，以提高类的封装性和灵活性。\n6. 重命名（Rename）：通过修改标识符的名称来使代码更易于理解和维护。\n7. 拆分临时变量（Split Temporary Variable）：将一个临时变量拆分为多个，以减少代码的复杂度和提高可读性。\n8. 移除重复代码（Remove Duplicate Code）：通过抽象和封装来消除重复的代码，以减少代码量和提高代码的可维护性。\n9. 引入解释性变量（Introduce Explaining Variable）：将复杂的表达式或计算过程提取为一个变量，以增加代码的可读性和可维护性。\n10. 替换算法（Replace Algorithm）：通过使用更高效或更简洁的算法来替换现有的算法，以提高代码的性能。\n11. 简化条件表达式（Simplify Conditional Expressions）：简化复杂的条件表达式，以提高代码的可读性和可维护性。\n12. 简化函数调用（Simplify Function Calls）：简化函数调用的方式，以减少不必要的参数和提高代码的可读性。\n13. 搬移函数（Move Function）：将函数从一个类或模块中移动到另一个类或模块中，以减少代码的耦合性和提高代码的可维护性。\n14. 搬移字段（Move Field）：将字段从一个类中移动到另一个类中，以减少代码的耦合性和提高代码的可维护性。\n15. 提炼类（Extract Class）：将一个类中的一部分代码提取为一个新的类，以提高代码的模块化和可维护性。\n16. 提炼接口（Extract Interface）：将一个类的公共接口提取为一个独立的接口，以增加代码的灵活性和可扩展性。\n17. 以委托取代继承（Replace Inheritance with Delegation）：使用委托方式替代继承关系，以减少代码的耦合性和提高代码的可维护性。\n18. 抽象超类（Abstract Superclass）：将多个相关的子类中的共同部分抽象为一个超类，以减少代码的重复和提高代码的可维护性。\n\n请你参考上面提供的重构技巧，按需对下面这份代码进行重构，输出最终重构后的代码并在最后解释使用了那些技巧进行重构：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/schemaFix",
+    "description": "模块Schema优化",
+    "key": "schemaFix",
+    "template": "你是一个熟悉 JSON Schema 语法规范的软件工程师，需要你对 type 是 string 的字段，添加 `x-format` 扩展功能。\n\n`x-format` 是搭建系统的拓展字段，可检查 string 类型字段值的格式。提供了以下类型名称来约束格式：\n\n`@url`\n校验填入的 URL 是否符合规范，语法规则为：`@url()`，检查是否为正常 URL 地址。\n\n`@image`\n校验填入的 URL 是否为图片。\n语法规则为：`@image('WidthxHeight', format, minSize, maxSize)`。\n参数说明：\n- WidthxHeight：图片宽高尺寸，例如 '750x100'，'750x'(只限宽), 'x100'(只限高)。\n- format：图片格式。\n- minSize：图片文件最小值，单位KB，默认 0。\n- maxSize：图片文件最大值，单位 KB。\n\n示例：\n```json\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image('90x45')\" //图片url所对应的图片像素为宽90像素，高45像素则成功，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-250-100.gif\" \n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image('90x')\" //图片url所对应的图片像素为宽90像素则成功，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-250.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-250-45.gif\" \n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image('x45')\" //图片url所对应的图片像素高为45像素则成功，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-45-45.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-45-90.gif\" \n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image()\" //图片url所对应的是图片则成功，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// fail=> \"http://www.tmall.com\"\n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image('90x45','jpg|gif',20,50.5)\" //图片url所对应的图片像素为宽90像素，高45像素则成功，且图片格式是jpg或者png，文件大小在20kb~50.5kb之间，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-250-100.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.png\" \n\n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@image('90x45',,20,50.5)\" //图片url所对应的图片像素为宽90像素，高45像素则成功，且文件大小在20kb~50.5kb之间，否则失败\n}\n// success=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-90-45.gif\" \n// fail=> \"http://img04.taobaocdn.com/tps/i4/T1ituPXwxXXXXF9njq-250-100.gif\"\n```\n\n`@color`\n校验填入内容是否为标准颜色格式。\n语法规则：`@color()`、`@color('hex')`、`@color('rgb')`、`@color('rgba')`。\n参数说明：无参数，默认支持 HEX 格式，例如 #FAFAFA；rgb：rgb 颜色模式；rgba：rgba 颜色模式。\n\n示例：\n```json\n{\n    \"type\": \"string\",\n    \"x-format\": \"@color()\" \n}\n{\n    \"type\": \"string\",\n    \"x-format\": \"@color('hex')\" \n}\n// success=> \"#00ff00\" \n// success=> \"#00FF00\" \n// success=> \"#0F0\"\n// success=> \"#0f0\"  \n// fail=> \"red\"\n// fail=> \"00ff00\"\n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@color('rbg')\" \n}\n\n// success => \"rgb(255,255,255)\"\n// fail => \"#fffff\"\n// fail => \"rgba(1,2,3,0.1)\"\n\n\n{\n    \"type\": \"string\",\n    \"x-format\": \"@color('rbga')\" \n}\n\n// success => \"rgba(255,255,255,0.8)\"\n// fail => \"#fffff\"\n// fail => \"rgb(255,255,255)\"\n```\n\n根据上述教程，请完善以下 JSON Schema：\n{codeStr}\n",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/simplity",
+    "description": "降低选中代码复杂度",
+    "key": "simplity",
+    "template": "从现在开始，你是一位优秀的软件工程师，擅长对复杂度高的代码进行优化，这份代码可能存在以下复杂度问题，你需要按照对应的优化方案对这份代码进行优化：\n\n1. 时间复杂度高：代码中存在使用嵌套循环或递归等方式造成时间复杂度呈指数级增长的情况。\n优化方案：通过优化算法或数据结构，尽量减少循环或递归的嵌套次数，避免不必要的重复计算，或者考虑使用动态规划等思想进行优化。\n2. 空间复杂度高：代码中存在过多的临时变量或数据结构占用大量内存空间的情况。\n优化方案：尽量减少临时变量的使用，使用合适的数据结构来减小内存占用，例如使用迭代代替递归，避免创建过多的对象等。\n3. 圈复杂度高：代码中存在复杂的条件语句或循环语句，导致代码逻辑复杂且不易理解。\n优化方案：通过重构代码，将复杂的条件语句或循环语句拆分为多个简单的语句，使用函数或类来封装复杂逻辑，提高代码可读性和可维护性。\n4. 控制流复杂度高：代码中存在过多的条件分支和循环，导致代码逻辑难以理解和调试。\n优化方案：通过重构代码，减少条件分支和循环的数量，使用抽象方法或设计模式来简化控制流，提高代码清晰度和可维护性。\n5. 代码冗余或重复：代码中存在大量重复的代码或冗余的逻辑。\n优化方案：提取公共代码块，封装成函数或类，通过调用减少冗余代码的重复性。\n6. 缺乏注释和文档：代码缺乏必要的注释和文档，不易理解和维护。\n优化方案：添加必要的注释，对代码逻辑和功能进行详细的文档说明，方便他人理解和维护。\n7. 缺乏异常处理：代码中没有对可能出现的异常情况进行处理，容易导致程序崩溃或运行异常。\n优化方案：在关键的代码段加入异常处理机制，合理处理可能发生的异常情况，保证程序的稳定性和健壮性。\n\n请你按上面提供的优化方案，对下面这份代码进行优化，你优化后的代码不能有上面提出的问题：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  },
+  {
+    "name": "/unittest",
+    "description": "为选中代码生成单元测试",
+    "key": "unittest",
+    "template": "从现在开始，你将承担单元测试代码生成工作，每当用户输入代码时，你将会按照以下要求完成工作，仅输出代码和注释，不要输出其他内容。\n1. 为用户输入的代码方法编写单元测试代码，要求尽可能覆盖每一行代码，测试框架使用 jest\n2. 请根据代码中函数命名和注释理解代码，设计测试用例，并在每个测试方法上方的注释中写出测试用例的设计思路和编号。\n3. 需要以符合Markdown的格式对全部输出结果进行封装。除了代码之外，所有的输出语言使用中文。\n4. 如果代码中遇到任何对其他方法或者接口的调用，请使用jest进行Mock测试，无需进行实际调用。\n5. 在生成的测试代码中，注意import所有需要用到的依赖，import的包的位置参考用户输入的代码中的位置。\n6. 注意语法问题，无法确切知道的信息比如结构体的属性等不要去猜测，仅通过已知信息来生成代码，确保生成的测试代码可执行。\n\n以下是提供的代码：\n{codeStr}",
+    "isBuiltin": true,
+    "isFactory": false
+  }
+]

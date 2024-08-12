@@ -1,0 +1,25 @@
+.tips {
+  color: var(--ant-color-primary);
+  font-weight: bold;
+}
+
+.checkbox {
+  min-width: 42vw;
+}
+
+.deps_item_wrapper {
+  background-color: var(--ant-color-bg-container-disabled);
+  border-radius: 8px;
+  padding: 4px;
+  margin-top: 8px;
+}
+
+.operation_wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.divider {
+  margin: 8px 0px;
+}

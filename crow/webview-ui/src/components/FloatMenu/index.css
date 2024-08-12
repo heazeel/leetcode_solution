@@ -1,0 +1,6 @@
+.float-menu {
+  position: fixed;
+  bottom: 120px;
+  right: 10px;
+  z-index: 20;
+}

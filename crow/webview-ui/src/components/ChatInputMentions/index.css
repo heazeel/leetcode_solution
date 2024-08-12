@@ -1,0 +1,155 @@
+.chat-footer {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 10px;
+  /* background-color: #23262b; */
+}
+
+.chat-footer-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.suggest-questions {
+  padding: 0 10px 10px;
+  font-size: 8px;
+}
+
+.chat-footer-btn {
+  margin-right: 10px;
+  background-color: transparent;
+  /* border-color: rgb(40, 44, 52); */
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-footer-btns-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-footer-more-btn {
+  background-color: transparent;
+  border-color: rgb(40, 44, 52);
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-footer-btn:hover,
+.chat-footer-more-btn:hover {
+  border-color: #79c0ff;
+  color: #79c0ff;
+}
+
+.chat-wrapper {
+  position: relative;
+  box-sizing: border-box;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mention-tags {
+  position: absolute;
+  padding-left: 3px;
+  padding-top: 3px;
+  z-index: 1;
+}
+
+.mention-placeholder {
+  position: absolute;
+  padding-left: 3px;
+  padding-left: 12px;
+  z-index: 3;
+  top: 0;
+}
+
+.chat-wrapper-mentions {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.chat-area-mentions {
+  border-radius: 4px;
+  font-family: inherit;
+  resize: none;
+  background-color: var(--vscode-input-background) !important;
+  border-color: var(--vscode-input-background);
+}
+
+.chat-area-mentions > textarea {
+  padding-right: 30px;
+}
+
+.chat-area-mentions > textarea:focus {
+  outline: unset;
+}
+
+.chat-btn-area-mention {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 2px;
+  height: 28px;
+  right: 10px;
+}
+
+.chat-btn,
+.chat-quick-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+}
+
+.chat-quick-btn {
+  right: auto;
+  left: 10px;
+  top: 7px;
+  position: absolute;
+  height: 28px;
+}
+
+.chat-text-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-btn:hover {
+  background-color: var(--vscode-disabledForeground);
+}
+
+.tbstart-dropdown-button > .ant-btn-compact-first-item {
+  padding: 0 3px !important;
+}
+
+.top-btns,
+.bottom-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: transparent;
+  border: none;
+}
+
+.ant-dropdown-menu {
+  padding-left: 0 !important;
+}
+
+.ant-mentions-dropdown-menu {
+  padding-left: 0 !important;
+}

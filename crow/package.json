@@ -1,0 +1,503 @@
+{
+  "name": "crow",
+  "displayName": "Crow Copilot",
+  "description": "超市 AI 代码助手",
+  "publisher": "chaoshi-f2e-team",
+  "version": "1.0.1",
+  "main": "./out/extension.js",
+  "icon": "./res/logo.png",
+  "engines": {
+    "node": ">=18",
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "permissions": [
+    "network"
+  ],
+  "enabledApiProposals": [
+    "contribEditorContentMenu",
+    "editorInsets"
+  ],
+  "activationEvents": [
+    "onUri",
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Crow Copilot Configuration",
+      "properties": {
+        "crowCopilot.userToken": {
+          "type": "string",
+          "markdownDescription": "Crow Copilot 服务的用户令牌，可从获取",
+          "order": 0
+        },
+        "crowCopilot.syncGitPrepareCommitMsg": {
+          "title": "同步git prepare-commit-msg hook",
+          "type": "boolean",
+          "markdownDescription": "开启后会覆盖项目中原有的git hook。会在每次执行git commit -m -crow命令时，调用AI生成commit信息",
+          "order": 1
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "crow-chat-view-container",
+          "title": "Crow",
+          "icon": "./res/crow.png"
+        }
+      ],
+      "panel": [
+        {
+          "id": "crow-player-view-container",
+          "title": "Crow Player",
+          "icon": "./res/crow.png"
+        }
+      ]
+    },
+    "views": {
+      "crow-chat-view-container": [
+        {
+          "id": "crow-chat-view",
+          "type": "webview",
+          "name": "Chat",
+          "when": "config.crowCopilot.userToken"
+        },
+        {
+          "id": "crow-welcome-view",
+          "name": "welcome",
+          "when": "!config.crowCopilot.userToken"
+        }
+      ],
+      "crow-player-view-container": [
+        {
+          "id": "crow-player-view",
+          "type": "webview",
+          "name": "Player",
+          "when": "crowPlayerStatus"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "crowCopilot.activate",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i"
+      },
+      {
+        "command": "crowCopilot.terminalCommit",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "terminalFocus && !crowCopilot.commitMsgGenerating && crowcliSyncStatus == 'normal'"
+      },
+      {
+        "command": "crowCopilot.inlineChat",
+        "key": "ctrl+i",
+        "mac": "cmd+i"
+      }
+    ],
+    "commands": [
+      {
+        "command": "crowCopilot.activate",
+        "title": "Shortcut to activate Crow Copilot",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.testMode",
+        "title": "use testMode",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "_crowCopilot.playerStatus",
+        "title": "显示Crow动线播放器",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.uploadMode",
+        "title": "打开上传模式",
+        "icon": "./res/upload.svg",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.useDevMind",
+        "title": "打开DevMind模块生成模式",
+        "icon": {
+          "light": "./res/close_inverse.svg",
+          "dark": "./res/close.svg"
+        },
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.useFreeChat",
+        "title": "关闭DevMind模块生成模式",
+        "icon": "./res/open.svg",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.addSession",
+        "title": "新增会话",
+        "icon": "./res/addSession.svg",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.logOut",
+        "title": "退出登录",
+        "icon": "./res/logout.svg",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.openSettings",
+        "title": "Open CrowCopilot Settings",
+        "icon": {
+          "light": "./res/setting_inverse.svg",
+          "dark": "./res/setting.svg"
+        },
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.sourceMenuCommit",
+        "title": "使用 Crow 生成提交信息",
+        "icon": {
+          "light": "./res/sparkle-dark.svg",
+          "dark": "./res/sparkle.svg"
+        },
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.cancelGenCommit",
+        "title": "取消 Crow 生成提交信息",
+        "icon": {
+          "light": "./res/loading-dark.svg",
+          "dark": "./res/loading.svg"
+        },
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.openUserManual",
+        "title": "打开用户手册",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.dataCheck",
+        "title": "生成数据校验代码",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.fix",
+        "title": "修复选中代码风格问题",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.explain",
+        "title": "解释选中代码",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.refactor",
+        "title": "重构选中代码",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.addSpmAttribute",
+        "title": "添加 data-spm 属性",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.configArms",
+        "title": "配置 Arms 告警",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.addGoldLog",
+        "title": "添加黄金令箭",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.useInlineCompletion",
+        "title": "采用补全代码",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "_crowCopilot.codeLens.fix",
+        "title": "codeLen fix code",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "_crowCopilot.codeLens.explain",
+        "title": "codeLen explain code",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "_crowCopilot.codeLens.doc",
+        "title": "codeLen doc code",
+        "category": "Crow Copilot"
+      },
+      {
+        "command": "crowCopilot.inlineChat",
+        "title": "inline chat",
+        "category": "Crow Copilot"
+      }
+    ],
+    "icons": {
+      "loading-icon": {
+        "description": "loading icon",
+        "default": {
+          "fontPath": "./res/crow.woff",
+          "fontCharacter": "\\e900"
+        }
+      },
+      "sparkle-icon": {
+        "description": "sparkle icon",
+        "default": {
+          "fontPath": "./res/crow.woff",
+          "fontCharacter": "\\e901"
+        }
+      },
+      "crow-icon": {
+        "description": "crow icon",
+        "default": {
+          "fontPath": "./res/crow.woff",
+          "fontCharacter": "\\e902"
+        }
+      }
+    },
+    "submenus": [
+      {
+        "id": "crowCopilot",
+        "label": "Crow Copilot"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "when": "view == crow-chat-view && chatMode == 'free' && isLogin == true",
+          "command": "crowCopilot.addSession",
+          "group": "navigation@0"
+        },
+        {
+          "when": "view == crow-chat-view",
+          "command": "crowCopilot.openSettings",
+          "group": "navigation@2"
+        },
+        {
+          "when": "view == crow-chat-view && chatMode == 'free' && isLogin == true",
+          "command": "crowCopilot.useDevMind",
+          "group": "navigation@1"
+        },
+        {
+          "when": "view == crow-chat-view && chatMode == 'devMind' && isLogin == true",
+          "command": "crowCopilot.useFreeChat",
+          "group": "navigation@1"
+        }
+      ],
+      "scm/title": [
+        {
+          "when": "scmProvider == git && !crowCopilot.commitMsgGenerating && crowcliSyncStatus == 'normal'",
+          "command": "crowCopilot.sourceMenuCommit",
+          "group": "navigation@1"
+        },
+        {
+          "when": "scmProvider == git && crowCopilot.commitMsgGenerating && crowcliSyncStatus == 'normal'",
+          "command": "crowCopilot.cancelGenCommit",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "crow-welcome-view",
+        "contents": "欢迎使用Copilot \n 乌鸦(Crow Copilot)\n 系统检测到您还没有配置 Private token，请先完成配置 \n[去配置](command:crowCopilot.openSettings)\n 可以在 [这里] 获取您的 Private token",
+        "when": "!config.crowCopilot.userToken"
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "config",
+        "title": "Private Key 配置",
+        "description": "如何完成private key的配置？",
+        "steps": [
+          {
+            "id": "getPK",
+            "title": "获取Private Key",
+            "description": "我们首先需要去获取您的private key ",
+            "media": {
+              "image": "./res/privatekey.jpg",
+              "altText": "复制private key"
+            }
+          },
+          {
+            "id": "changesetting",
+            "title": "修改插件配置",
+            "description": "接下来我们需要将上一步获取到的 private key ，填写到插件配置的配置中，\n[去配置](command:crowCopilot.openSettings)",
+            "media": {
+              "image": "./res/setting.jpg",
+              "altText": "添加设置"
+            },
+            "completionEvents": [
+              "onCommand:crowCopilot.openSettings"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "freeChat",
+        "title": "自由对话功能",
+        "description": "了解如何使用自由对话功能",
+        "steps": [
+          {
+            "id": "enter",
+            "title": "进入自由聊天",
+            "description": "首先进入插件，可以通过点击左侧导航栏插件logo，或者使用快捷键 **cmd + shift + i** 激活并进入插件",
+            "media": {
+              "image": "./res/enter.jpg",
+              "altText": "点击进入"
+            },
+            "completionEvents": [
+              "onView:crow-chat-view-container"
+            ]
+          },
+          {
+            "id": "sendmsg",
+            "title": "发送消息",
+            "description": "进入插件后就可以在输入框输入您想问的问题，Crow会尽其所能帮您解答",
+            "media": {
+              "image": "./res/sendmsg.jpg",
+              "altText": "发送消息&停止回复"
+            }
+          },
+          {
+            "id": "msgop",
+            "title": "消息快捷操作",
+            "description": "可以点击消息头上的按钮进行消息复制、重试、以及删除，如果回复的消息包含代码，也可以点击代码块上的操作按钮，快捷进行复制、插入、开启diff插入等能力",
+            "media": {
+              "image": "./res/msgop.jpg",
+              "altText": "消息的快捷操作"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fastFunc",
+        "title": "快捷操作使用",
+        "description": "了解如何使用内置的快捷操作",
+        "steps": [
+          {
+            "id": "basicuse",
+            "title": "基本使用",
+            "description": "打开编辑器，选中您要进行快捷操作的代码，通过右键快捷菜单或者点击快捷操作按钮，执行插件内置的快捷操作",
+            "media": {
+              "image": "./res/fast.png",
+              "altText": "使用快捷操作"
+            }
+          },
+          {
+            "id": "intoConfig",
+            "title": "定制快捷操作按钮",
+            "description": "点击左侧快捷操作栏第一个设置按钮，进入配置面板",
+            "media": {
+              "image": "./res/intoConfig.jpg",
+              "altText": "配置快捷操作"
+            }
+          },
+          {
+            "id": "viewInfo",
+            "title": "查看快捷操作详情",
+            "description": "点击配置面板上方操作按钮，可以查看&编辑快捷操作的信息(可编辑自定义操作，内置操作不支持编辑)",
+            "media": {
+              "image": "./res/viewInfo.jpg",
+              "altText": "快捷操作详情"
+            }
+          },
+          {
+            "id": "sort",
+            "title": "快捷操作排序",
+            "description": "点击配置面板操作按钮下方的排序，进入排序模式",
+            "media": {
+              "image": "./res/sort.jpg",
+              "altText": "快捷操作排序"
+            }
+          },
+          {
+            "id": "add",
+            "title": "新增快捷操作",
+            "description": "点击配置面板操作按钮下方的新增，显示新增表单",
+            "media": {
+              "image": "./res/add.jpg",
+              "altText": "新增快捷操作"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "start:webview": "npm run build:prompts && cd webview-ui && npm run dev",
+    "build:webview": "npm run build:prompts && cd webview-ui && npm run build",
+    "build:webview-modules": "npm run build:prompts && cd webview-ui && npm run build:modules",
+    "build:prompts": "node ./prompts/build.js",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "package": "rm -rf ./out && npm run build:webview && vsce package --skip-license --out ./out"
+  },
+  "devDependencies": {
+    "@types/antd": "^1.0.0",
+    "@types/archiver": "^6.0.2",
+    "@types/async": "^3.2.24",
+    "@types/fs-extra": "^11.0.4",
+    "@types/lodash.forin": "^4.4.9",
+    "@types/lodash.orderby": "^4.6.9",
+    "@types/mkdirp": "^2.0.0",
+    "@types/mocha": "^10.0.3",
+    "@types/node": "^20.10.3",
+    "@types/vscode": "^1.84.0",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "@vscode/test-electron": "^2.3.6",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.19.10",
+    "eslint": "^8.52.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@appworks/configure": "^0.1.0",
+    "@appworks/project-utils": "^0.1.0",
+    "@appworks/storage": "^0.1.0",
+    "@babel/parser": "^7.23.6",
+    "@babel/types": "^7.23.6",
+    "@langchain/community": "^0.0.56",
+    "@langchain/core": "^0.1.62",
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "archiver": "^7.0.1",
+    "async": "^3.2.5",
+    "axios": "^1.6.2",
+    "cross-fetch": "^4.0.0",
+    "fast-safe-stringify": "^2.1.1",
+    "fs-extra": "^11.2.0",
+    "hnswlib-node": "^3.0.0",
+    "js-tiktoken": "^1.0.11",
+    "langchain": "^0.1.37",
+    "lodash.forin": "^4.4.0",
+    "lodash.orderby": "^4.6.0",
+    "mkdirp": "^3.0.1",
+    "moment": "^2.30.1",
+    "node-cache": "^5.1.2",
+    "node-machine-id": "^1.1.12",
+    "recast": "^0.23.4",
+    "web-streams-polyfill": "^4.0.0",
+    "ws": "^8.15.1"
+  }
+}

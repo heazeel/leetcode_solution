@@ -1,0 +1,330 @@
+import React, { memo, useState, useRef, useEffect } from 'react';
+import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
+import mermaid from 'mermaid';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus as codeStyleDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneLight as codeStyleLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Typography, Button, Tooltip, Tag, Space } from 'antd';
+import { CopyOutlined, CodeOutlined, DiffOutlined } from '@ant-design/icons';
+import { ChatMode } from '@/types';
+import { vscode } from '@/utilities/vscode';
+import { logCode, logClkTbStarUrl } from '@/utilities/common';
+import useDarkTheme from '@/hooks/useDarkTheme';
+import highlight from 'highlight.js';
+import remarkGfm from 'remark-gfm';
+import './index.css';
+
+export interface MarkDownItemProp {
+  content: string;
+  needShrink?: boolean;
+  type: ChatMode.DevMind | ChatMode.Free;
+}
+
+const defaultHStyle = {
+  fontWeight: 600,
+  margin: '16px 0',
+  lineHeight: '20px',
+};
+
+const MermaidItem = (props: { text: string }) => {
+  const { text } = props;
+
+  useEffect(() => {
+    mermaid.run();
+  }, []);
+
+  return <div className="mermaid">{text}</div>;
+};
+
+const MarkDownItem = memo((props: any) => {
+  const { content, needShrink = false, type = ChatMode.Free, isTbsearch, references } = props || {};
+  const [isShrink, setIsShrink] = useState(false);
+  const [firstShrinkStatus, setFirstShrinkStatus] = useState(false);
+  const firstRender = useRef(true);
+  const useDark = useDarkTheme();
+
+  const renderConfig = isTbsearch
+    ? {
+        ol(props: any) {
+          const { children } = props || {};
+          const newChildren = React.Children.map(children, renderChildren);
+          return <>{newChildren}</>;
+        },
+        ul(props: any) {
+          const { children } = props || {};
+          const newChildren = React.Children.map(children, renderChildren);
+          return <>{newChildren}</>;
+        },
+      }
+    : {};
+
+  // 操作
+  const operate = (operateType: string, text: string) => {
+    if (operateType === 'clipboard') {
+      vscode.postMessage({
+        type: operateType,
+        content: { method: 'writeText', text },
+      });
+    }
+    if (operateType === 'insertText') {
+      vscode.postMessage({
+        type: 'textEditor',
+        content: { method: 'replaceSelectedText', text },
+      });
+    }
+    if (operateType === 'insertTextBeforePreview') {
+      vscode.postMessage({
+        type: 'textEditor',
+        content: { method: 'insertTextBeforePreview', text },
+      });
+    }
+
+    // 快捷操作上报
+    logCode({
+      page: type,
+      operator: operateType,
+      eventType: 'CLK',
+      extData: {
+        text,
+      },
+    });
+  };
+
+  const jumpToPage = (index: number) => {
+    const info = references[index - 1];
+    if (info) {
+      const { url, title } = info || {};
+      logClkTbStarUrl({
+        page: type,
+        operator: '点击数字链接跳转',
+        eventType: 'CLK',
+        extData: {
+          title,
+          url,
+        },
+      });
+      vscode.postMessage({
+        type: 'dealTbstarMsg',
+        content: {
+          type: 'openUrl',
+          url,
+        },
+      });
+    }
+  };
+
+  const renderChildren = (child: any): React.ReactNode => {
+    if (typeof child === 'string') {
+      const tagArr: any[] = [];
+      const newStr = child.replace(/【(\d+)†】/g, (match) => {
+        const number = match.match(/\d+/);
+        if (number) {
+          tagArr.push(number[0]);
+        }
+        return '†';
+      });
+      const splitArr: string[] = [];
+      newStr.split('').forEach((item: string) => {
+        if (item === '†') {
+          splitArr.push('†');
+        } else {
+          if (splitArr[splitArr.length - 1] === '†') {
+            splitArr.push(item);
+          } else {
+            splitArr.length ? (splitArr[splitArr.length - 1] += item) : splitArr.push(item);
+          }
+        }
+      });
+      let count = 0;
+      return (
+        <>
+          {splitArr.map((item) => {
+            if (item === '†') {
+              const index = tagArr[count];
+              count++;
+              return (
+                <Tag
+                  key={item}
+                  style={{
+                    display: 'inline',
+                    marginRight: '4px',
+                    marginLeft: '2px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    jumpToPage(index);
+                  }}
+                >
+                  {index}
+                </Tag>
+              );
+            }
+            return <Typography.Text>{item}</Typography.Text>;
+          })}
+        </>
+      );
+    } else {
+      try {
+        const { props } = child;
+        let { children } = props || {};
+        if (typeof children === 'string') {
+          props.children = renderChildren(props.children);
+        } else if (Object.prototype.toString.call(children) === '[object Array]') {
+          props.children = children.map((item: any) => {
+            return renderChildren(item);
+          });
+        }
+        return child;
+      } catch (e) {
+        console.error(`[特殊字符解析失败]:${e}`);
+        return child;
+      }
+    }
+  };
+
+  return (
+    <div className="md-wrapper">
+      <div className="md-body">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          children={content}
+          components={{
+            code(props) {
+              const { children, className, node, ...rest } = props;
+              const { position, data }: any = node || {};
+              const { start, end } = position;
+              const { meta = '' } = data || {};
+
+              if (!children) {
+                return null;
+              }
+
+              if (end.line - start.line > 7) {
+                if (firstRender.current) {
+                  setIsShrink(true);
+                  setFirstShrinkStatus(true);
+                  firstRender.current = false;
+                }
+              }
+
+              // 判断语言类型
+              const result = highlight.highlightAuto(String(children));
+              const language = `language-${result.language}`;
+
+              // 内联代码
+              const isInline = !String(children).includes('\n');
+              // 匹配语言
+              const match = /language-(\w+)/.exec(className || language || '');
+              return match && !isInline ? (
+                <div className="code-wrapper">
+                  {match && match[1] === 'mermaid' ? (
+                    <MermaidItem text={String(children).replace(/\n$/, '')} />
+                  ) : (
+                    <SyntaxHighlighter
+                      className={`code-block ${needShrink && 'code-block-need-shrink'} ${
+                        needShrink && isShrink && 'code-block-shrink'
+                      }`}
+                      PreTag="div"
+                      children={String(children).replace(/\n$/, '')}
+                      language={match[1] || result.language}
+                      style={useDark ? codeStyleDark : codeStyleLight}
+                    />
+                  )}
+                  <div className="css-var-crow md-header">
+                    <Space size={4}>
+                      <Tooltip placement="top" title={'复制'}>
+                        <Button
+                          type="text"
+                          size="small"
+                          // shape="circle"
+                          icon={<CopyOutlined />}
+                          onClick={() => {
+                            operate('clipboard', String(children));
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip placement="top" title={'插入'}>
+                        <Button
+                          type="text"
+                          size="small"
+                          // shape="circle"
+                          icon={<CodeOutlined />}
+                          onClick={() => {
+                            operate('insertText', String(children));
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip placement="top" title={'插入并比对'}>
+                        <Button
+                          type="text"
+                          size="small"
+                          // shape="circle"
+                          icon={<DiffOutlined />}
+                          onClick={() => {
+                            operate('insertTextBeforePreview', String(children));
+                          }}
+                        />
+                      </Tooltip>
+                    </Space>
+                  </div>
+                  {!!needShrink && firstShrinkStatus && (
+                    <div className="shrink-btn" onClick={() => setIsShrink(!isShrink)}>
+                      {isShrink ? <CaretDownOutlined /> : <CaretUpOutlined />}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <code {...rest} className={className}>
+                  {children}
+                </code>
+              );
+            },
+            p(props) {
+              const { children, className } = props || {};
+
+              if (isTbsearch) {
+                const newChildren = React.Children.map(children, renderChildren);
+                return <>{newChildren}</>;
+              }
+
+              return (
+                <Typography.Paragraph style={{ whiteSpace: 'normal' }} className={className}>
+                  {children}
+                </Typography.Paragraph>
+              );
+            },
+            ...renderConfig,
+            table({ children }) {
+              return <table className="css-var-crow md-table">{children}</table>;
+            },
+            a({ children, href }) {
+              return (
+                <Typography.Link href={href} style={{ whiteSpace: 'normal' }}>
+                  {children}
+                </Typography.Link>
+              );
+            },
+            h1({ children }) {
+              return <h1 style={{ fontSize: 20, ...defaultHStyle }}>{children}</h1>;
+            },
+            h2({ children }) {
+              return <h2 style={{ fontSize: 16, ...defaultHStyle }}>{children}</h2>;
+            },
+            h3({ children }) {
+              return <h3 style={{ fontSize: 14, ...defaultHStyle }}>{children}</h3>;
+            },
+            h4({ children }) {
+              return <h4 style={{ fontSize: 13, ...defaultHStyle }}>{children}</h4>;
+            },
+            h5({ children }) {
+              return <h5 style={{ fontSize: 11, ...defaultHStyle }}>{children}</h5>;
+            },
+          }}
+        />
+      </div>
+    </div>
+  );
+});
+
+export default MarkDownItem;

@@ -1,0 +1,22 @@
+html,
+body {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  color: var(--crow-color-text);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+ul,
+ol {
+  padding-inline-start: 28px !important;
+}
+
+.ant-steps.ant-steps-vertical > .ant-steps-item .ant-steps-item-content {
+  min-height: initial;
+}
