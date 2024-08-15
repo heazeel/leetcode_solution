@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "sourceMap": false,
+    "noEmit": false,
+    "noEmitHelpers": false,
+    "importHelpers": false,
+    "strictNullChecks": false,
+    "allowUnreachableCode": true,
+    "lib": ["dom", "es2023"],
+    "typeRoots": ["./node_modules/@types"],
+    "outDir": "./lib",
+    "rootDir": "./src"
+  },
+  "exclude": [
+    // 不参与打包的目录
+    "node_modules",
+    "lib"
+  ],
+  "esModuleInterop": true,
+  "aLlowSyntheticDefaultzmports": true,
+  "compileonSave": false,
+  "buildonSave": false
+}

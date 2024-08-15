@@ -1,0 +1,62 @@
+{
+  "name": "@heazeel/crow-cli",
+  "version": "0.0.8",
+  "description": "乌鸦vscode插件配套cli",
+  "main": "lib/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "tsc -w",
+    "build": "rm -rf lib && tsc"
+  },
+  "bin": {
+    "crow": "./bin/bin.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "Lint-staged": {
+    "**/*-(js,jsx, ts, tsx, html, css,json}": [
+      "npx prettier —write"
+    ]
+  },
+  "repository": {
+    "type": "git"
+  },
+  "keywords": [],
+  "author": "hezhijie hezhijie",
+  "contributors": [
+    "hezhijie.hezhijie"
+  ],
+  "License": "MIT",
+  "devDependencies": {
+    "@types/async": "^3.2.24",
+    "@types/figlet": "^1.5.8",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.24",
+    "eslint": "^8.57.0",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.2",
+    "rimraf": "^5.0.5",
+    "typescript": "<5.2.0"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^5.0.1",
+    "@langchain/community": "^0.0.35",
+    "@langchain/core": "^0.1.43",
+    "async": "^3.2.5",
+    "axios": "^1.6.7",
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "cross-fetch": "^4.0.0",
+    "figlet": "^1.7.0",
+    "fs-extra": "^11.2.0",
+    "globby": "^11.0.4",
+    "handlebars": "^4.7.8",
+    "inquirer": "^9.2.22",
+    "node-machine-id": "^1.1.12",
+    "ora": "^5.4.1",
+    "parse-diff": "^0.11.1",
+    "rc": "^1.2.8",
+    "web-streams-polyfill": "^4.0.0"
+  }
+}
