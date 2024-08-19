@@ -2895,14 +2895,48 @@ const q = [
   },
 ];
 
-const fs = require("fs");
-const genarate = () => {
-  q.forEach((item, index) => {
-    fs.writeFileSync(
-      `./aliProblem/${item.index}.${item.title}.md`,
-      item.md + "\n\n#### js代码如下\n" + "```js\n" + `${item.js}` + "\n```"
-    );
-  });
-};
+// const fs = require("fs");
+// const genarate = () => {
+//   q.forEach((item, index) => {
+//     fs.writeFileSync(
+//       `./aliProblem/${item.index}.${item.title}.md`,
+//       item.md + "\n\n#### js代码如下\n" + "```js\n" + `${item.js}` + "\n```"
+//     );
+//   });
+// };
 
-genarate();
+// genarate();
+
+class Storage {
+  // your code here
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.map = new Map();
+  }
+
+  setItem(key, value) {
+    if (this.map.size === this.capacity) {
+      const firstKey = this.map.keys().next().value;
+      this.map.delete(firstKey);
+    }
+
+    this.map.set(key, value);
+  }
+
+  getItem(key) {
+    const res = this.map.get(key);
+    if (res) {
+      this.map.delete(key);
+      this.map.set(key, res);
+    }
+
+    console.log(res);
+  }
+}
+
+const storage = new Storage(2);
+storage.setItem("a", 1);
+storage.setItem("b", 2);
+storage.getItem("a");
+storage.setItem("c", 3);
+storage.getItem("b");
