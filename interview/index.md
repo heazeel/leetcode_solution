@@ -28,7 +28,9 @@ LCEL（LangChain Expression Language） 是 langchain 无论是 python 还是 js
 
 ### 大模型开发范式
 
-**RAG：** 检索能力增强，语义理解
+#### RAG
+
+检索能力增强，语义理解
 
 - LLM 的局限性。
   - 首先，是幻觉问题，llm 本身是从大量数据中训练出来的一个概率模型，也就是他并没有逻辑和实践经验，是基于概率产生的“伪智能”，而不是底层基于逻辑和推理能力“真智能”。
@@ -41,7 +43,9 @@ LCEL（LangChain Expression Language） 是 langchain 无论是 python 还是 js
 
 所以 RAG 就是哪里有问题解决哪里，既然大模型无法获得最新和内部的数据集，那我们就使用外挂的向量数据库为 llm 提供最新和内部的数据库。既然大模型有幻想问题，我们就将回答问题所需要的信息和知识编码到上下文中，强制大模型只参考这些内容进行回答
 
-**Agents：** Agents 是一个自主的决策和执行过程，其核心是将 llm 作为推理引擎，根据 llm 对任务和环境的理解，并根据提供的各种工具，自主决策一系列的行动。
+#### Agents
+
+Agents 是一个自主的决策和执行过程，其核心是将 llm 作为推理引擎，根据 llm 对任务和环境的理解，并根据提供的各种工具，自主决策一系列的行动。
 逻辑推理，规划逻辑链、行动链，每一步调用什么 API 去解决问题，模拟像人类的思考方式去解决问题
 
 Function calling 本质上就是给 LLM 了解和调用外界函数的能力，LLM 会根据他的理解，在合适的时间返回对函数的调用和参数，然后根据函数调用的结果进行回答
@@ -108,3 +112,107 @@ Function calling 本质上就是给 LLM 了解和调用外界函数的能力，L
 - 补全能力设计
   - 虽然 Aone 的补全按口已经能满足大部分场景的补全准确性了，但是我们在实现初期只是把单文件的上下文作为 prompt 传递了进去，缺失关联文件的信息，生成的补全代码有时候并不准确。
   - 所以需要实现一套能够提取相似代码的能力，这里使用了与 Github Copilot 相似的 Jaccard 算法，A 与 B 交集的大小与 A 与 B 并集的大小的比值。首先要对当前编辑区内容进行分词，分词的会排除一些关键字，为了避免超出 token 限制，引入了一个叫滑动窗口的概念，在当前已开 tab 的文件中，会从上到下，开一个默认 60 行的窗口，将窗口内代码分词后与前者计算出一个相似系数，然后窗口往下移动一行，以此类推。最后会生成一个根据相似系数排序的代码快照数组，选择排序最高的放进 prompt 中。除此以外还对补全性能进行了设计，引人名为一二级缓存的概念，一级缓存主要处理当前输入过程，用户的某个输入已经触发的补全，但由于用户输入太快，并没有接受这次补全，但是由于上下文变化不大，所以如果输入的内容与补全内容一致，可以将上次补全内容裁切后直接复用，比如输入了 const，补全返回了 a=1，当你后面继续输入 a 时，对之前返回的 a=1 进行裁场得到 =1，然后返回；二级缓存主要针对全局，每次补全都会返回一个内容，对应一份上下文，会把上下文和返回的内容缓存起来，如果后面碰到同样的上下文，可以直接返回结果，默认缓存 100 条，会用 LRUCache 进行缓存淘汰。
+
+### React 相关
+
+#### 生命周期：
+
+- 类组件
+  - 初始化
+    - constructor
+    - getDerivedStateFromProps
+    - componentWillMount
+    - render
+    - componentDidMount
+  - 更新
+    - componentWillReceiveProps
+    - getDerivedStateFromProps
+    - shouldComponentUpdate
+    - componentWillUpdate
+    - render
+    - getSnapshotBeforeUpdate
+    - componentDidUpdate
+  - 销毁阶段
+    - componentWillUnmount
+- 函数组件
+  - useEffect
+  - useLayoutEffect：在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM
+  - useInsertionEffect：在 DOM 更新前，主要解决 css-in-js
+
+#### 事件合成：
+
+为了实现全浏览器的一致性，抹平不同浏览器之间的差异性
+
+React 合成事件的工作原理大致可以分为两个阶段：
+“合成事件”会以事件委托（Event Delegation）方式绑定在组件最上层
+
+- 事件绑定
+- 事件触发
+
+React 所有事件都挂载在 document 对象上
+当真实 DOM 元素触发事件，会冒泡到 document 对象后，再处理 React 事件
+所以会先执行原生事件，然后处理 React 事件
+最后真正执行 document 上挂载的事件
+
+#### fiber 架构
+
+1. Fiber 架构的目标
+
+- 可中断的渲染：允许将渲染工作分成多个小任务，从而可以在任务之间暂停和恢复。这使得 React 能够在处理长时间任务时保持界面的响应性。
+- 优先级调度：根据任务的重要性分配优先级，高优先级任务（如用户输入）可以打断低优先级任务（如动画）。
+- 更好的错误处理：提供更细粒度的错误边界，允许在不影响整个应用的情况下处理错误。
+- 并发模式：支持并发渲染，使得 React 能够更高效地利用多核处理器。
+
+1. Fiber 架构的工作原理
+
+- Fiber 节点：每个 React 元素对应一个 Fiber 节点，Fiber 节点包含了组件的状态、props、DOM 引用等信息。
+- 双缓冲机制：React 维护两个 Fiber 树，一个是当前屏幕上显示的 Fiber 树（current tree），另一个是正在构建的 Fiber 树（work-in-progress tree）。
+- 任务分割：React 将渲染工作分成多个小任务，每个任务对应一个 Fiber 节点的更新。React 可以在任务之间暂停和恢复，从而保持界面的响应性。
+- 优先级调度：React 根据任务的重要性分配优先级，高优先级任务可以打断低优先级任务。React 使用一个优先级队列来管理这些任务。
+
+### react 更新过程
+
+React 的更新过程可以分为三个主要阶段：
+调度（Scheduling）、
+调和（Reconciliation）
+提交（Commit）
+
+1. 调度（Scheduling）
+   定义：调度阶段负责确定哪些更新需要处理以及它们的优先级。
+   工作原理：
+   React 会根据任务的重要性分配优先级，例如用户输入的更新优先级高于动画更新。
+   调度器会将高优先级任务插入到任务队列的前面，以确保它们能尽快得到处理。
+   调度器还会将低优先级任务推迟到浏览器空闲时再处理。
+
+1. 调和（Reconciliation）
+   定义：调和阶段负责比较新旧虚拟 DOM 树，找出需要更新的部分。
+   工作原理：
+   React 会创建一个新的虚拟 DOM 树，并将其与当前的虚拟 DOM 树进行比较。
+   通过 Diff 算法，React 能够高效地找出需要更新的节点。
+   调和阶段会生成一个更新队列，包含所有需要更新的节点和对应的操作。
+
+1. 提交（Commit）
+   定义：提交阶段负责将调和阶段生成的更新应用到实际的 DOM 上。
+   工作原理：
+   提交阶段是同步的，确保所有更新在一次渲染周期内完成。
+   React 会遍历更新队列，将每个更新应用到实际的 DOM 上。
+   提交阶段还会调用生命周期方法（如 componentDidUpdate）和副作用钩子（如 useEffect）。
+
+### React Hooks
+
+#### useState
+
+useState 更新，底层会做这些事。
+
+- 首先用户每一次调用 dispatchAction 都会先创建一个 update ，然后把它放入待更新 pending 队列中。
+- 然后判断如果当前的 fiber 正在更新，那么也就不需要再更新了。
+- 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。
+
+#### Hooks 原理
+
+在 fiber 调和过程中，遇到 FunctionComponent 类型的 fiber（函数组件），就会调用 renderWithHooks，并执行函数组件，执行里面 hooks
+
+memoizedState 保存 hooks 信息，是一个链表，通过 next 指针指向下一个
+updateQueue 存放每个 useEffect/useLayoutEffect 产生的副作用组成的链表
+
+更新 hooks 流程和双缓存的流程差不多，首先取出 workInProgres.alternate 里面对应的 hook ，然后根据之前的 hooks 复制一份，形成新的 hooks 链表关系。
