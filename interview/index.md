@@ -12,7 +12,7 @@
     - for 代码理解提效
       - 我们做了一个针对代码工作区的 RAG 答疑，对当前工作区代码进行适当的文本分割，再通过 embeding 将文本内容向量化存入本地的向量数据库中，就相当于为给大模型外挂了一个知识库，提问时会先从知识库里匹配关键信息，最终生成一个增强后的 prompt 给到大模型。
   - 二是 C 端业务需求与横向能力建设
-    - 主要负责用增域拉新、品牌馆、半⽇达等 C 端业务，参与前期的 mrd、prd 评审，评估风险点、设计前端技术方案，保障需求上线；
+    - 主要负责用增域拉新、品牌馆、半⽇达等 C 端业务，参与前期的 mrd、prd 评审，评估风险点、设计前端技术方案，保障需求上线。主要会做对应的模块开发，比如签到、任务面板、抽奖、红包领取等模块，然后负责页面搭建、配置页面插件，发布上线、监控全流程；
       - 参与业务调研，积极与业务沟通，发现业务痛点，主导设计了基于 Mars 动画引擎，可配置、可扩展、多形态的前端互动玩法组件，完成用增的一个底层抽奖⼯具的统⼀，降低业务的配置成本。
     - 横向方面的话，主要做稳定性相关的提效工具
       - 针对告警配置繁琐、历史告警订正困难等问题，调研 Arms 的开发能力，独立开发了一款稳定性插件，提供快速添加告警配置，也提供一键数据订正，历史遗留数据扫描等功能。会在 618、双 11 等大促前期，利用插件进行全站的告警配置扫描，确保告警都正常运行。
@@ -31,12 +31,11 @@
 
 <!-- 抽象语法树（Abstract Syntax Tree，简称 AST）是一种用于表示源代码结构的树状数据结构。AST 是编译器和解释器在分析源代码时生成的中间表示形式，它将源代码的语法结构抽象成树形结构，其中每个节点代表源代码中的一种结构元素（如表达式、语句、函数等）。 -->
 
+<!-- 大模型相关 ------------------------------------------------------- -->
+
 ### 什么是 LangChain
 
 大模型应用框架，因为 LLM 的 API 只是提供了一个非常基础的调用方式，当我们要构建一个复杂的 Chat Bot 时，就需要考虑如何保存聊天的上下文、如何进行网络搜索、如何加载 pdf 等等工程问题，这些都是应用框架可以帮助我们解决的
-
-LCEL（LangChain Expression Language） 是 langchain 无论是 python 还是 js 版本都在主推的新设计。
-支持 从原型到生产 完整流程不需要修改任何代码，也就是我们在写的任何原型代码不需要太多的改变就能支持生产级别的各种特性
 
 一条 Chain 组成的每个模块都是继承自 Runnable 这个接口，而一条 Chain 也是继承自这个接口，所以一条 Chain 也可以很自然的成为另一个 Chain 的一个模块。并且所有 Runnable 都有相同的调用方式。 所以在我们写 Chain 的时候就可以自由组合多个 Runnable 的模块来形成复杂的 Chain
 
@@ -68,8 +67,7 @@ LCEL（LangChain Expression Language） 是 langchain 无论是 python 还是 js
 
 #### Agents
 
-Agents 是一个自主的决策和执行过程，其核心是将 llm 作为推理引擎，根据 llm 对任务和环境的理解，并根据提供的各种工具，自主决策一系列的行动。
-逻辑推理，规划逻辑链、行动链，每一步调用什么 API 去解决问题，模拟像人类的思考方式去解决问题
+充分利用 LLM 的推理决策能力，通过增加规划、记忆和工具调用的能力，构造一个能够独立思考、逐步完成给定目标的智能体
 
 Function calling 本质上就是给 LLM 了解和调用外界函数的能力，LLM 会根据他的理解，在合适的时间返回对函数的调用和参数，然后根据函数调用的结果进行回答
 
@@ -94,13 +92,32 @@ Function calling 本质上就是给 LLM 了解和调用外界函数的能力，L
 **fine-turning：** Fine-tuning 技术可以用于优化预训练模型，以提高其在特定任务中的性能，例如问答、文本摘要、语言理解等
 **Prompt 和 Embedding** 是 AIGC 模型的核心功能，语言处理应用。例如，它们可以用于聊天机器人、语言翻译、摘要生成、文本分类等
 
+<!-- 工程相关 -------------------------------------------------------- -->
+
 ### 工程相关
 
-设计了配套的 cli 命令行工具，为什么
+#### 设计了配套的 cli 命令行工具，为什么
 
 - 设计初期是为了能够直接使用命令来触发 AI commit，因为 vscode 对于终端的扩展能力非常有限，所以我选择了 cli 工具这种方式
 - 第 2 点是能力解耦，随着功能增多，插件的代码其实越来越庞大了，将这部分能力抽离出来，可以方便维护和迭代，也方便在其他场景下进行扩展
 - 第 3 点是适配上，组内并不是所有人都在使用 vscode 的，我们不会再去开发一款 intellj 插件，所以采用 cli 的方式，能很轻松的将一些功能带给所有用户使用，而不局限于编辑器
+
+cli 架构参考了文件路由系统，会在入口处读取命令，注入环境变量，根据命令找到对应的目录中的 command 命令并执行
+后续扩展命令只需要增加命令文件夹和 option 文件夹即可，不需要修改入口文件，不需要关注命令注册、错误处理等逻辑
+
+#### 插件架构设计
+
+插件架构主要分为两部分
+
+- nodejs，在 vscode api 基础上，提供如文件读写、消息通信、编辑区处理等能力
+- webview，UI 界面与用户交互
+
+node 端我们细分了很多原子能力，比如
+file：提供读写文件，创建临时文件等
+editor：提供光标选区，编辑区文本插入&提取等
+还有 git、终端操作、日志系统等等
+
+原子能力是不能直接与 webview 关联的，所以在这之前我们设计了一层消息中心，可以通过消息中心组装调度原子能力
 
 ### 图片生成代码
 
@@ -136,31 +153,90 @@ Function calling 本质上就是给 LLM 了解和调用外界函数的能力，L
   - 虽然 Aone 的补全按口已经能满足大部分场景的补全准确性了，但是我们在实现初期只是把单文件的上下文作为 prompt 传递了进去，缺失关联文件的信息，生成的补全代码有时候并不准确。
   - 所以需要实现一套能够提取相似代码的能力，这里使用了与 Github Copilot 相似的 Jaccard 算法，A 与 B 交集的大小与 A 与 B 并集的大小的比值。首先要对当前编辑区内容进行分词，分词的会排除一些关键字，为了避免超出 token 限制，引入了一个叫滑动窗口的概念，在当前已开 tab 的文件中，会从上到下，开一个默认 60 行的窗口，将窗口内代码分词后与前者计算出一个相似系数，然后窗口往下移动一行，以此类推。最后会生成一个根据相似系数排序的代码快照数组，选择排序最高的放进 prompt 中。除此以外还对补全性能进行了设计，引人名为一二级缓存的概念，一级缓存主要处理当前输入过程，用户的某个输入已经触发的补全，但由于用户输入太快，并没有接受这次补全，但是由于上下文变化不大，所以如果输入的内容与补全内容一致，可以将上次补全内容裁切后直接复用，比如输入了 const，补全返回了 a=1，当你后面继续输入 a 时，对之前返回的 a=1 进行裁场得到 =1，然后返回；二级缓存主要针对全局，每次补全都会返回一个内容，对应一份上下文，会把上下文和返回的内容缓存起来，如果后面碰到同样的上下文，可以直接返回结果，默认缓存 100 条，会用 LRUCache 进行缓存淘汰。
 
+<!-- React 相关------------------------------------------------------------------->
+
 ### React 相关
+
+#### React19 新特性
+
+1. 新编译器，在使用新编译器以前，我们使用 useMemo、useCallback 和 memo 来手动缓存状态，新的 React 编译器会是一个开箱即用的特性。黄玄 React Forget，听说已经在 instagram 上试用了，但目前还没正式开源
+2. useActionState，可以替代之前的 useFormState 和 useFormStatus。比如在提交表单时，传统实现方式的弊端：开发者需要手动处理挂起状态、错误状态等，使用 useActionState 可以减少代码量，比如错误信息，挂起状态都可以在一个 hook 里解决
+3. useOptimistic，它允许你在进行异步操作时显示不同 state，比如点赞时可以直接将 UI 渲染状态变为点赞成功，同时进行点赞请求，请求结果返回后再次渲染最终结果。通常用于立即向用户呈现执行操作的结果，即使实际上操作需要一些时间来完成
 
 #### 生命周期：
 
-- 类组件
-  - 初始化
-    - constructor
-    - getDerivedStateFromProps
-    - componentWillMount
-    - render
-    - componentDidMount
-  - 更新
-    - componentWillReceiveProps
-    - getDerivedStateFromProps
+类组件偏向于面向对象的，函数组件偏向于函数式编程
+
+React 的生命周期主要分为三个阶段：MOUNTING、RECEIVE_PROPS、UNMOUNTING
+
+- 组件挂载时（组件状态的初始化，读取初始 state 和 props 以及两个生命周期方法，只会在初始化时运行一次）
+
+  - componentWillMount 会在 render 之前调用（在此调用 setState，是不会触发 re-render 的，而是会进行 state 的合并。因此此时的 this.state 不是最新的，在 render 中才可以获取更新后的 this.state。）
+  - componentDidMount 会在 render 之后调用
+
+- 组件更新时（组件的更新过程是指父组件向下传递 props 或者组件自身执行 setState 方法时发生的一系列更新的动作）
+
+  - 组件自身的 state 更新，依次执行
+
+    - shouldComponentUpdate（会接收需要更新的 props 和 state，让开发者增加必要的判断条件，在其需要的时候更新，不需要的时候不更新。如果返回的是 false，那么组件就不再向下执行生命周期方法。）
+    - componentWillUpdate
+    - render 能获取到最新的 this.state
+    - componentDidUpdate 能获取到最新的 this.state
+
+  - 父组件更新 props 而更新
+    - componentWillReceiveProps（在此调用 setState，是不会触发 re-render 的，而是会进行 state 的合并。因此此时的 this.state 不是最新的，在 render 中才可以获取更新后的 this.state。
     - shouldComponentUpdate
     - componentWillUpdate
     - render
-    - getSnapshotBeforeUpdate
     - componentDidUpdate
-  - 销毁阶段
-    - componentWillUnmount
+
+- 组件卸载时
+  - componentWillMount（我们常常会在组件的卸载过程中执行一些清理方法，比如事件回收、清空定时器）
+
+新版的生命周期函数增加了 getDerivedStateFromProps，这个生命周期其实就是将传入的 props 映射到 state 中。在 React 16.4 之后，这个函数每次会在 re-render 之前调用，
+getDerivedStateFromProps 的作用是
+
+无条件的根据 prop 来更新内部 state，也就是只要有传入 prop 值， 就更新 state
+只有 prop 值和 state 值不同时才更新 state 值。
+
 - 函数组件
   - useEffect
   - useLayoutEffect：在 DOM 更新之后，浏览器绘制之前，这样可以方便修改 DOM
   - useInsertionEffect：在 DOM 更新前，主要解决 css-in-js
+
+#### ErrorBoundary
+
+```js
+import React, { Component } from "react";
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // 更新 state 以触发下一次渲染时显示回退 UI
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // 你也可以将错误日志上报给服务器
+    console.error("Error caught by ErrorBoundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // 你可以自定义回退 UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+```
 
 #### 事件合成：
 
@@ -226,6 +302,15 @@ useState 更新，底层会做这些事。
 - 然后判断如果当前的 fiber 正在更新，那么也就不需要再更新了。
 - 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。
 
+react18 之前
+一般情况下 useState 都是异步更新的，会把多个 useState 的前后事务逻辑包在一起
+当遇到 setTimeout/setInterval/Promise.then 等操作时是同步更新的
+由于 react 的事件委托机制，调用 onClick 执行的事件，是处于 react 的控制范围的。
+而 setTimeout 已经超出了 react 的控制范围，react 无法对 setTimeout 的代码前后加上事务逻辑
+
+react18
+所有更新都会进行批处理
+
 #### Hooks 原理
 
 在 fiber 调和过程中，遇到 FunctionComponent 类型的 fiber（函数组件），就会调用 renderWithHooks，并执行函数组件，执行里面 hooks
@@ -235,7 +320,20 @@ updateQueue 存放每个 useEffect/useLayoutEffect 产生的副作用组成的�
 
 更新 hooks 流程和双缓存的流程差不多，首先取出 workInProgres.alternate 里面对应的 hook ，然后根据之前的 hooks 复制一份，形成新的 hooks 链表关系。
 
-#### Redux 原理
+#### Diff 算法的具体步骤
+
+比较根节点：
+如果根节点类型不同，直接替换整个节点。
+如果根节点类型相同，比较属性并更新不同的属性。
+
+比较子节点：
+如果子节点是文本节点，直接更新文本内容。
+如果子节点是元素节点，递归地进行比较。
+如果子节点是列表节点，使用 key 属性进行比较
+
+<!-- Redux 相关------------------------------------------------------------------------ -->
+
+### Redux 原理
 
 #### 发布订阅思想
 
@@ -259,6 +357,8 @@ React-Redux 提供了一个高阶组件 connect，被 connect 包装后组件将
 
 上订下发：当 store 中 state 发生改变，会触发 store.subscribe，但是只会通知给 Provider 中的根订阅器，根订阅器不会直接派发更新，而是会下发给子代订阅器（ connect 中的 Subscription ），再由子代订阅器，决定是否更新组件，层层下发
 
+<!-- web 端开发相关 -------------------------------------------------------------- -->
+
 #### web 端开发相关
 
 ### pwa 渐进式 Web 应用
@@ -278,7 +378,23 @@ React-Redux 提供了一个高阶组件 connect，被 connect 包装后组件将
 - 网络进程：网络资源加载
 - 插件进程：插件运行
 
+### 浏览器插件
+
 inject_script：和普通 js 无差别，不能访问插件 API，不支持跨域
 content_script：可以访问 dom，不能访问 js，不支持跨域
 popup_script：可以访问绝大部份 API，可以跨域
 background_script：可以访问绝大部份 API，生命周期长，可以跨域
+
+<!-- 网络相关 ------------------------------------------------------------ -->
+
+### http
+
+HTTP/1.0：每个请求/响应对使用一个新的 TCP 连接，缺乏缓存控制和带宽优化机制。
+HTTP/1.1：引入了持久连接、分块传输编码、缓存控制、范围请求和 Host 头，改进了连接管理和带宽优化。
+HTTP/2.0：使用二进制分帧、多路复用、头部压缩和服务器推送，显著提高了传输效率和性能
+
+### http 和 tcp、udp
+
+HTTP 是应用层，TCP、UDP 是传输层
+TCP 有连接（三次握手），有断开（四次挥手），传输稳定
+UDP 无连接，无断开不稳定传输，但效率高。如视频会议、语音通话
