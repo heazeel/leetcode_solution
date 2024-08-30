@@ -226,40 +226,60 @@ React 的事件合成机制（是 React 为了提高跨浏览器兼容性和性�
 
 Fiber 是 React 的一个执行单元，React 将整个渲染任务拆分成了一个个的小任务进行处理，每一个小任务指的就是 Fiber 节点的构建。
 拆分的小任务会在浏览器的空闲时间被执行，每个任务单元执行完成后，React 都会检查是否还有空余时间，如果有就交换主线程的控制权
-Fiber 其实就是 JavaScript 对象，在这个对象中有 child 属性表示节点的子节点，有 sibling 属性表示节点的下一个兄弟节点，有 return 属性表示节点的父级节点
+Fiber 其实就是 JavaScript 对象，
+在这个对象中有
+child：子节点，
+sibling：下一个兄弟节点，
+return：节点的父级节点
 
-### react 更新过程
+### Fiber 更新机制
 
-React 的更新过程可以分为三个主要阶段：
+初始化
 
-调度（Scheduling）、
-调和（Reconciliation）
-提交（Commit）
+1. 创建 fiberRoot 和 rootFiber，第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联
+   - fiberRoot：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基
+   - rootFiber：一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）
+2. workInProgress 和 current
+   - workInProgress 是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
+   - current：正在视图层渲染的树叫做 current 树
+     接下来会到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress ，如果没有 alternate，那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行
+3. 深度调和子节点，渲染视图
+   - 在新创建的 alternates 上，完成整个 fiber 树的遍历，包括 fiber 的创建
+   - 最后会以 workInProgress 作为最新的渲染树，fiberRoot 的 current 指针指向 workInProgress 使其变为 current Fiber 树
 
-vdom 转 fiber 的过程叫做 reconcile，是可打断的，React 加入了 schedule 的机制在空闲时调度 reconcile，reconcile 的过程中会做 diff，打上增删改的标记（effectTag），并把对应的 dom 创建好。然后就可以一次性把 fiber 渲染到 dom，也就是 commit
+更新
+重新创建一颗 workInProgresss 树，复用当前 current 树上的 alternate ，作为新的 workInProgress ，由于初始化 rootfiber 有 alternate ，所以对于剩余的子节点，React 还需要创建一份，和 current 树上的 fiber 建立起 alternate 关联
+渲染完毕后，workInProgresss 再次变成 current 树
 
-1. 调度（Scheduling）
-   定义：调度阶段负责确定哪些更新需要处理以及它们的优先级。
-   工作原理：
-   React 会根据任务的重要性分配优先级，例如用户输入的更新优先级高于动画更新。
-   调度器会将高优先级任务插入到任务队列的前面，以确保它们能尽快得到处理。
-   调度器还会将低优先级任务推迟到浏览器空闲时再处理。
+fiber 调和阶段主要分为两部分
 
-2. 协调（Reconciliation）
-   定义：调和阶段负责比较新旧虚拟 DOM 树，找出需要更新的部分。
-   工作原理：
-   使用双缓存 fiber tree
+1. render 阶段。每一个 fiber 可以看作一个执行的单元，在调和过程中，每一个发生更新的 fiber 都会作为一次 workInProgress 。那么 workLoop 就是执行每一个单元的调度器，如果渲染没有被中断，那么 workLoop 会遍历一遍 fiber 树
 
-   - React 会创建一个新的虚拟 DOM 树，并将其与当前的虚拟 DOM 树进行比较。
-   - 通过 Diff 算法，为发生变化的 fiber node 打上 effect 标记
-   - 调和阶段会生成一个更新队列，包含所有需要更新的节点和对应的操作。
+   - beginWork：是向下调和的过程。就是由 fiberRoot 按照 child 指针逐层向下调和，期间会执行函数组件，实例类组件，diff 调和子节点，打不同 effectTag。
 
-3. 提交（Commit）
-   定义：提交阶段负责将调和阶段生成的更新应用到实际的 DOM 上。
-   工作原理：
-   提交阶段是同步的，确保所有更新在一次渲染周期内完成。
-   React 会遍历更新队列，将每个更新应用到实际的 DOM 上。
-   提交阶段还会调用生命周期方法（如 componentDidUpdate）和副作用钩子（如 useEffect）。
+     - 对于组件，执行部分生命周期，执行 render ，得到最新的 children
+     - 向下遍历调和 children ，使用 diff 算法复用 oldFiber
+     - 打不同的副作用标签 effectTag ，比如类组件的生命周期，或者元素的增加，删除，更新
+
+   - completeUnitOfWork：是向上归并的过程，如果有兄弟节点，会返回 sibling 兄弟，没有返回 return 父级，一直返回到 fiebrRoot ，期间可以形成 effectList，对于初始化流程会创建 DOM ，对于 DOM 元素进行事件收集，处理 style，className 等
+     - 首先 completeUnitOfWork 会将 effectTag 的 Fiber 节点会被保存在一条被称为 effectList 的单向链表中。在 commit 阶段，将不再需要遍历每一个 fiber ，只需要执行更新 effectList 就可以了
+
+2. commit 阶段
+   _ 对一些生命周期和副作用钩子的处理，比如 componentDidMount ，函数组件的 useEffect ，useLayoutEffect ；
+   _ 在一次更新中，添加节点，更新节点，删除节点，还有就是一些细节的处理，比如 ref 的处理
+   commit 细分可以分为：
+   _ Before mutation 阶段（执行 DOM 操作前）；
+   _ 因为 Before mutation 还没修改真实的 DOM ，是获取 DOM 快照的最佳时期，如果是类组件有 getSnapshotBeforeUpdate ，那么会执行这个生命周期
+   _ 会异步调用 useEffect
+   _ mutation 阶段（执行 DOM 操作）；
+   _ 置空 ref
+   _ 对新增元素，更新元素，删除元素。进行真实的 DOM 操作
+   _ layout 阶段（执行 DOM 操作后）
+   _ 会执行 useLayoutEffect 钩子 \* 如果有 ref ，会重新赋值 ref
+
+### 双缓冲树
+
+React 用 workInProgress 树(内存中构建的树) 和 current (渲染树) 来实现更新逻辑。双缓存一个在内存中构建，一个渲染视图，两颗树用 alternate 指针相互指向，在下一次渲染的时候，直接复用缓存树做为下一次渲染树，上一次的渲染树又作为缓存树，这样可以防止只用一颗树更新状态的丢失的情况，又加快了 DOM 节点的替换与更新
 
 ### React Hooks
 
@@ -269,7 +289,7 @@ useState 更新，底层会做这些事。
 
 - 首先用户每一次调用 dispatchAction 都会先创建一个 update ，然后把它放入待更新 pending 队列中。
 - 然后判断如果当前的 fiber 正在更新，那么也就不需要再更新了。
-- 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。
+- 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。这就解释了，为什么函数组件 useState 改变相同的值，组件不更新了
 
 react18 之前
 一般情况下 useState 都是异步更新的，会把多个 useState 的前后事务逻辑包在一起
@@ -414,3 +434,10 @@ xss：跨站脚本攻击。攻击者通过在网页中注入恶意脚本，使�
   中介者：发布者和订阅者之间通过一个中介者（消息代理）进行通信。发布者将消息发送到消息代理，订阅者从消息代理接收消息。
   解耦：发布者和订阅者之间没有直接依赖关系。它们不知道彼此的存在，只通过消息代理进行通信。
   实现方式：通常通过事件系统或消息队列来实现。
+
+### 剪映的架构设计
+
+功能拆分
+视频转码 - WebAssembly（Wasm） - FFmpeg.js
+web-worker
+发布订阅模式
