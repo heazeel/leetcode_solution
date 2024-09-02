@@ -17,6 +17,15 @@
     - 横向方面的话，主要做稳定性相关的提效工具
       - 针对告警配置繁琐、历史告警订正困难等问题，调研 Arms 的开发能力，独立开发了一款稳定性插件，提供快速添加告警配置，也提供一键数据订正，历史遗留数据扫描等功能。会在 618、双 11 等大促前期，利用插件进行全站的告警配置扫描，确保告警都正常运行。
 
+#### 技术细节
+
+langchain 提供了一系列的开箱即用的 loader 来帮助开发者处理不同数据源的数据
+
+1. 使用 langchain 提供的递归文本拆分，RecursiveCharacterTextSplitter（包含预先构建的分隔符列表，可用于以特定编程语言拆分文本），来对 js、ts 代码做分割
+2. 封装了一个基于通义千问 dashScope Api 的 emmbeding 工具，用于文本向量化
+3. 通过 HNSWLib，将向量存储到文件中（HNSWLib 是一个内存向量存储，可以保存到文件中），这里使用到的是@langchain/community 的集成包，已经封装好了绝大部分 HNSWLib 的用法。使用的时候你需要传入一个文本拆分后的 document 和 emmbeding 工具即可
+4. 这样一个向量数据库就创建好了，然后可以通过 similaritySearch 执行简单的相似性搜索，或者和 langchain 配合直接将向量数据库转换为检索器，然后调用 invoke 方法触发查询。
+
 #### 对比其他人，自己的优势在哪
 
 1. 技术敏感度比较高吧，平时也比较关心社区动态，一些自己没接触过的东西都会感兴趣的尝试一下
@@ -161,9 +170,9 @@ React 的生命周期主要分为三个阶段：MOUNTING、RECEIVE_PROPS、UNMOU
 - 组件卸载时
   - componentWillMount（我们常常会在组件的卸载过程中执行一些清理方法，比如事件回收、清空定时器）
 
-新版的生命周期函数增加了 getDerivedStateFromProps，这个生命周期其实就是将传入的 props 映射到 state 中。在 React 16.4 之后，这个函数每次会在 re-render 之前调用，
-getDerivedStateFromProps 的作用是
+新版的生命周期函数增加了 getDerivedStateFromProps，这个生命周期其实就是将传入的 props 映射到 state 中。在 React 16.4 之后，这个函数每次会在 re-render 之前调用
 
+getDerivedStateFromProps 的作用是
 无条件的根据 prop 来更新内部 state，也就是只要有传入 prop 值， 就更新 state
 只有 prop 值和 state 值不同时才更新 state 值。
 
@@ -227,33 +236,75 @@ React 的事件合成机制（是 React 为了提高跨浏览器兼容性和性�
 Fiber 是 React 的一个执行单元，React 将整个渲染任务拆分成了一个个的小任务进行处理，每一个小任务指的就是 Fiber 节点的构建。
 拆分的小任务会在浏览器的空闲时间被执行，每个任务单元执行完成后，React 都会检查是否还有空余时间，如果有就交换主线程的控制权
 Fiber 其实就是 JavaScript 对象，
+
 在这个对象中有
-child：子节点，
-sibling：下一个兄弟节点，
-return：节点的父级节点
+
+```js
+function FiberNode() {
+  this.tag = tag; // fiber 标签 证明是什么类型fiber。
+  this.key = key; // key调和子节点时候用到。
+  this.type = null; // dom元素是对应的元素类型，比如div，组件指向组件对应的类或者函数。
+  this.stateNode = null; // 指向对应的真实dom元素，类组件指向组件实例，可以被ref获取。
+
+  this.return = null; // 指向父级fiber
+  this.child = null; // 指向子级fiber
+  this.sibling = null; // 指向兄弟fiber
+  this.index = 0; // 索引
+
+  this.ref = null; // ref指向，ref函数，或者ref对象。
+
+  this.pendingProps = pendingProps; // 在一次更新中，代表element创建
+  this.memoizedProps = null; // 记录上一次更新完毕后的props
+  this.updateQueue = null; // 类组件存放setState更新队列，函数组件存放
+  this.memoizedState = null; // 类组件保存state信息，函数组件保存hooks信息，dom元素为null
+  this.dependencies = null; // context或是时间的依赖项
+
+  this.mode = mode; //描述fiber树的模式，比如 ConcurrentMode 模式
+
+  this.effectTag = NoEffect; // effect标签，用于收集effectList
+  this.nextEffect = null; // 指向下一个effect
+
+  this.firstEffect = null; // 第一个effect
+  this.lastEffect = null; // 最后一个effect
+
+  this.expirationTime = NoWork; // 通过不同过期时间，判断任务是否过期， 在v17版本用lane表示。
+
+  this.alternate = null; //双缓存树，指向缓存的fiber。更新阶段，两颗树互相交替。
+}
+```
 
 ### Fiber 更新机制
 
 初始化
 
-1. 创建 fiberRoot 和 rootFiber，第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联
+1. 创建 fiberRoot 和 rootFiber，第一次挂载的过程中，会将 fiberRoot 和 rootFiber 建立起关联，fiberRoot.current = rootFiber
    - fiberRoot：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基
    - rootFiber：一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）
-2. workInProgress 和 current
-   - workInProgress 是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
+2. 渲染流程中有两个概念：workInProgress 和 current
+
+   - workInProgress：正在内存中构建的 Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
    - current：正在视图层渲染的树叫做 current 树
+
      接下来会到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 alternate 作为 workInProgress ，如果没有 alternate，那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行
+
+     ```js
+     currentFiber.alternate = workInProgressFiber;
+     workInProgressFiber.alternate = currentFiber;
+     ```
+
 3. 深度调和子节点，渲染视图
-   - 在新创建的 alternates 上，完成整个 fiber 树的遍历，包括 fiber 的创建
+   - 会从根节点出发，深度遍历和创建所有 fiber
    - 最后会以 workInProgress 作为最新的渲染树，fiberRoot 的 current 指针指向 workInProgress 使其变为 current Fiber 树
 
 更新
-重新创建一颗 workInProgresss 树，复用当前 current 树上的 alternate ，作为新的 workInProgress ，由于初始化 rootfiber 有 alternate ，所以对于剩余的子节点，React 还需要创建一份，和 current 树上的 fiber 建立起 alternate 关联
+此时右边的 current 是一个完整的 fiber 树，左边只有根节点的 rootFiber。
+此时会会将左边根节点的 rootFiber 作为 workInProgresss 树，复用右边 current 树上的 alternate。
+对右边每一个 fiber 节点都复制一份，并将 alternate 指向左边的 fiber。
 渲染完毕后，workInProgresss 再次变成 current 树
 
 fiber 调和阶段主要分为两部分
 
-1. render 阶段。每一个 fiber 可以看作一个执行的单元，在调和过程中，每一个发生更新的 fiber 都会作为一次 workInProgress 。那么 workLoop 就是执行每一个单元的调度器，如果渲染没有被中断，那么 workLoop 会遍历一遍 fiber 树
+1. render 阶段。每一个 fiber 可以看作一个执行的单元，在调和过程中，每一个发生更新的 fiber 都会被执行一遍
 
    - beginWork：是向下调和的过程。就是由 fiberRoot 按照 child 指针逐层向下调和，期间会执行函数组件，实例类组件，diff 调和子节点，打不同 effectTag。
 
@@ -268,14 +319,15 @@ fiber 调和阶段主要分为两部分
    _ 对一些生命周期和副作用钩子的处理，比如 componentDidMount ，函数组件的 useEffect ，useLayoutEffect ；
    _ 在一次更新中，添加节点，更新节点，删除节点，还有就是一些细节的处理，比如 ref 的处理
    commit 细分可以分为：
-   _ Before mutation 阶段（执行 DOM 操作前）；
-   _ 因为 Before mutation 还没修改真实的 DOM ，是获取 DOM 快照的最佳时期，如果是类组件有 getSnapshotBeforeUpdate ，那么会执行这个生命周期
-   _ 会异步调用 useEffect
-   _ mutation 阶段（执行 DOM 操作）；
-   _ 置空 ref
-   _ 对新增元素，更新元素，删除元素。进行真实的 DOM 操作
-   _ layout 阶段（执行 DOM 操作后）
-   _ 会执行 useLayoutEffect 钩子 \* 如果有 ref ，会重新赋值 ref
+   - Before mutation 阶段（执行 DOM 操作前）；
+     - 因为 Before mutation 还没修改真实的 DOM ，是获取 DOM 快照的最佳时期，如果是类组件有 getSnapshotBeforeUpdate ，那么会执行这个生命周期
+     - 会异步调用 useEffect
+   - mutation 阶段（执行 DOM 操作）；
+     - 置空 ref
+     - 对新增元素，更新元素，删除元素。进行真实的 DOM 操作
+   - layout 阶段（执行 DOM 操作后）
+     - 会执行 useLayoutEffect 钩子
+     - 如果有 ref ，会重新赋值 ref
 
 ### 双缓冲树
 
